@@ -2,14 +2,22 @@ package main
 
 import (
 	"kickin/config"
-	"kickin/logger"
 	"kickin/migrations"
 	"kickin/routes"
+	"kickin/logger"
 	"log"
 	"net/http"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load .env
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	cfg := config.LoadConfig()
 	db := config.ConnectDB(cfg)
 	defer db.Close()

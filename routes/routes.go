@@ -34,6 +34,18 @@ func SetupRoutes(db *sql.DB, cfg *config.Config) http.Handler {
 		r.Post("/refresh", handlers.RefreshToken)
 	})
 
+	// Admin routes
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.RefreshMiddleware)
+		r.Use(middleware.AuthMiddleware)
+		r.Use(middleware.RoleMiddleware("superadmin"))
+
+		r.Route("/logs", func(r chi.Router) {
+			r.Get("/", handlers.ViewLogs)
+			r.Delete("/", handlers.ClearLogs) // hapus isi log
+		})
+	})
+
 
 	// Protected routes
 	r.Group(func(r chi.Router) {
@@ -41,6 +53,7 @@ func SetupRoutes(db *sql.DB, cfg *config.Config) http.Handler {
 		r.Use(middleware.AuthMiddleware)
 
 		r.Get("/me", handlers.GetMe)
+
 	})
 
 	return r

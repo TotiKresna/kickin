@@ -12,6 +12,6 @@ func RootHandlerWithDB(db *sql.DB) http.HandlerFunc {
 			utils.RespondError(w, http.StatusInternalServerError, "Database connection failed")
 			return
 		}
-		utils.RespondSuccess(w, "Connected to PostgreSQL Aiven with SSL", nil)
+		utils.RespondSuccess(w, "Connected to PostgreSQL", nil)
 	}
 }

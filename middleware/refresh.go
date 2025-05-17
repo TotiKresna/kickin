@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"kickin/utils"
+	"kickin/logger"
 	"net/http"
 	"context"
 )
@@ -19,12 +20,14 @@ func RefreshMiddleware(next http.Handler) http.Handler {
 		csrfHeader := r.Header.Get("X-CSRF-Token")
 
 		if err != nil || csrfHeader != csrfCookie.Value {
+			logger.LogError( "CSRF token mismatch")
 			http.Error(w, "CSRF check failed", http.StatusForbidden)
 			return
 		}
 
 		claims, err := utils.VerifyRefreshToken(cookie.Value)
 		if err != nil {
+			logger.LogWarning("Invalid refresh token, skipping refresh")
 			next.ServeHTTP(w, r)
 			return
 		}
