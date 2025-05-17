@@ -4,6 +4,8 @@
 # Ignore docker files
 # docker-compose.yml
 
+# Ignore files
+app.log
 
 # Ignore folder
 /certs

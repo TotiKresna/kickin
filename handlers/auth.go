@@ -3,31 +3,30 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"kickin/logger"
 	"kickin/models"
 	"kickin/utils"
-	"kickin/logger"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Register(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var u models.User
 		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
-			http.Error(w, "Invalid input", http.StatusBadRequest)
+			utils.RespondError(w, http.StatusBadRequest, "Invalid input")
 			return
 		}
 
 		hashed, _ := bcrypt.GenerateFromPassword([]byte(u.Password), 12)
 		_, err := db.Exec("INSERT INTO users (username, password, role) VALUES ($1, $2, $3)", u.Username, string(hashed), u.Role)
 		if err != nil {
-			http.Error(w, "Failed to create user", http.StatusInternalServerError)
+			utils.RespondError(w, http.StatusInternalServerError, "Failed to create user")
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
-		fmt.Fprintln(w, "User registered")
+		utils.RespondSuccess(w, "User registered successfully", nil)
 	}
 }
 
@@ -35,7 +34,7 @@ func Login(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var u models.User
 		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
-			http.Error(w, "Invalid input", http.StatusBadRequest)
+			utils.RespondError(w, http.StatusBadRequest, "Invalid input")
 			return
 		}
 
@@ -43,20 +42,20 @@ func Login(db *sql.DB) http.HandlerFunc {
 		err := db.QueryRow("SELECT id, username, password, role FROM users WHERE username=$1", u.Username).
 			Scan(&user.ID, &user.Username, &user.Password, &user.Role)
 		if err != nil {
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			utils.RespondError(w, http.StatusUnauthorized, "Invalid credentials")
 			return
 		}
 
 		if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(u.Password)) != nil {
-			logger.LogError( "Incorrect password")
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			logger.LogError("Incorrect password")
+			utils.RespondError(w, http.StatusUnauthorized, "Invalid credentials")
 			return
 		}
 
 		accessToken, refreshToken, err := utils.GenerateTokens(user)
 		if err != nil {
 			logger.LogError(err.Error())
-			http.Error(w, "Could not generate token", http.StatusInternalServerError)
+			utils.RespondError(w, http.StatusInternalServerError, "Could not generate token")
 			return
 		}
 
@@ -82,7 +81,7 @@ func Login(db *sql.DB) http.HandlerFunc {
 			MaxAge:   60 * 60 * 24 * 7, // 7 hari
 		})
 
-		json.NewEncoder(w).Encode(map[string]string{"access_token": accessToken})
+		utils.RespondSuccess(w, "Login successful", map[string]string{"access_token": accessToken})
 	}
 }
 
@@ -95,20 +94,19 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		MaxAge:   -1,
 	})
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "Logged out")
+	utils.RespondSuccess(w, "Logged out successfully", nil)
 }
 
 func RefreshToken(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("refresh_token")
 	if err != nil {
-		http.Error(w, "No refresh token", http.StatusUnauthorized)
+		utils.RespondError(w, http.StatusUnauthorized, "No refresh token")
 		return
 	}
 
 	claims, err := utils.VerifyRefreshToken(cookie.Value)
 	if err != nil {
-		http.Error(w, "Invalid refresh token", http.StatusUnauthorized)
+		utils.RespondError(w, http.StatusUnauthorized, "Invalid refresh token")
 		return
 	}
 
@@ -120,13 +118,13 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 		QueryRow("SELECT username, role FROM users WHERE username=$1", username).
 		Scan(&user.Username, &user.Role)
 	if err != nil {
-		http.Error(w, "User not found", http.StatusUnauthorized)
+		utils.RespondError(w, http.StatusUnauthorized, "User not found")
 		return
 	}
 
 	at, rt, err := utils.GenerateTokens(user)
 	if err != nil {
-		http.Error(w, "Failed to generate tokens", http.StatusInternalServerError)
+		utils.RespondError(w, http.StatusInternalServerError, "Failed to generate tokens")
 		return
 	}
 
@@ -150,7 +148,7 @@ func RefreshToken(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   60 * 60 * 24 * 7, // 7 hari
 	})
 
-	json.NewEncoder(w).Encode(map[string]string{
+	utils.RespondSuccess(w, "Token refreshed successfully", map[string]string{
 		"access_token": at,
 	})
 }
