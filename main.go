@@ -4,6 +4,7 @@ import (
 	"kickin/config"
 	"kickin/migrations"
 	"kickin/routes"
+	"kickin/logger"
 	"log"
 	"net/http"
 
@@ -26,7 +27,8 @@ func main() {
 
 	// Setup router + logger middleware
 	router := routes.SetupRoutes(db, cfg)
+	handler := logger.RequestLogger(router)
 
 	log.Printf("Server running on port %s", cfg.AppPort)
-	log.Fatal(http.ListenAndServe(":"+cfg.AppPort, router))
+	log.Fatal(http.ListenAndServe(":"+cfg.AppPort, handler))
 }
