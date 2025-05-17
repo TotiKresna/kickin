@@ -2,14 +2,21 @@ package main
 
 import (
 	"kickin/config"
-	"kickin/logger"
 	"kickin/migrations"
 	"kickin/routes"
 	"log"
 	"net/http"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load .env
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	cfg := config.LoadConfig()
 	db := config.ConnectDB(cfg)
 	defer db.Close()
@@ -19,8 +26,7 @@ func main() {
 
 	// Setup router + logger middleware
 	router := routes.SetupRoutes(db, cfg)
-	handler := logger.RequestLogger(router)
 
 	log.Printf("Server running on port %s", cfg.AppPort)
-	log.Fatal(http.ListenAndServe(":"+cfg.AppPort, handler))
+	log.Fatal(http.ListenAndServe(":"+cfg.AppPort, router))
 }

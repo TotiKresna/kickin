@@ -12,7 +12,6 @@ type Config struct {
 	DBHost      	string
 	DBPort      	string
 	DBName      	string
-	SSLRootCert 	string
 	AllowedOrigins	string
 }
 
@@ -24,7 +23,6 @@ func LoadConfig() *Config {
 		DBHost:      getEnv("DB_HOST"),
 		DBPort:      getEnv("DB_PORT"),
 		DBName:      getEnv("DB_NAME"),
-		SSLRootCert: "/certs/ca.pem",
 		AllowedOrigins: getEnvWithDefault("ALLOWED_ORIGINS", "http://localhost:3000"),
 	}
 }
