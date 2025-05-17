@@ -1,6 +1,10 @@
 # Ignore environment variable files
-#.env
+.env
+
+# Ignore docker files
+# docker-compose.yml
+
 
 # Ignore folder
-#/certs
-/logger
+/certs
+# /logger

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"kickin/models"
 	"kickin/utils"
+	"kickin/logger"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
@@ -47,12 +48,14 @@ func Login(db *sql.DB) http.HandlerFunc {
 		}
 
 		if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(u.Password)) != nil {
+			logger.LogError( "Incorrect password")
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
 
 		accessToken, refreshToken, err := utils.GenerateTokens(user)
 		if err != nil {
+			logger.LogError(err.Error())
 			http.Error(w, "Could not generate token", http.StatusInternalServerError)
 			return
 		}
