@@ -9,4 +9,4 @@ app.log
 
 # Ignore folder
 /certs
-/logger
+# /logger
