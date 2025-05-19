@@ -31,3 +31,7 @@ func RespondSuccess(w http.ResponseWriter, message string, data interface{}) {
 func RespondError(w http.ResponseWriter, code int, message string) {
 	RespondJSON(w, code, "error", message, nil)
 }
+
+func RespondValidationError(w http.ResponseWriter, message string, errors interface{}) {
+	RespondJSON(w, http.StatusBadRequest, "error", message, errors)
+}

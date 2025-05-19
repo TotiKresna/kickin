@@ -20,7 +20,11 @@ func main() {
 
 	cfg := config.LoadConfig()
 	db := config.ConnectDB(cfg)
-	defer db.Close()
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("Failed to get sql.DB from gorm.DB: %v", err)
+	}
+	defer sqlDB.Close()
 
 	// Jalankan migrasi otomatis
 	migrations.RunMigrations(db)

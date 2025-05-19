@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"database/sql"
 	"kickin/config"
 	"kickin/handlers"
 	"kickin/middleware"
@@ -9,9 +8,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"gorm.io/gorm"
 )
 
-func SetupRoutes(db *sql.DB, cfg *config.Config) http.Handler {
+func SetupRoutes(db *gorm.DB, cfg *config.Config) http.Handler {
 	r := chi.NewRouter()
 
 	// === CORS Middleware ===
@@ -31,7 +31,16 @@ func SetupRoutes(db *sql.DB, cfg *config.Config) http.Handler {
 		r.Post("/login", handlers.Login(db))
 		r.Post("/register", handlers.Register(db))
 		r.Post("/logout", handlers.Logout)
-		r.Post("/refresh", handlers.RefreshToken)
+		r.Post("/refresh", handlers.RefreshToken(db))
+	})
+	
+	// Protected routes
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.RefreshMiddleware)
+		r.Use(middleware.AuthMiddleware)
+
+		r.Get("/me", handlers.GetMe)
+
 	})
 
 	// Admin routes
@@ -47,14 +56,6 @@ func SetupRoutes(db *sql.DB, cfg *config.Config) http.Handler {
 	})
 
 
-	// Protected routes
-	r.Group(func(r chi.Router) {
-		r.Use(middleware.RefreshMiddleware)
-		r.Use(middleware.AuthMiddleware)
-
-		r.Get("/me", handlers.GetMe)
-
-	})
 
 	return r
 }

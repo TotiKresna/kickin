@@ -1,23 +1,21 @@
 package migrations
 
 import (
-	"database/sql"
+	"kickin/models"
 	"log"
+
+	"gorm.io/gorm"
 )
 
-func RunMigrations(db *sql.DB) {
-	query := `
-	CREATE TABLE IF NOT EXISTS users (
-		id SERIAL PRIMARY KEY,
-		username TEXT UNIQUE NOT NULL,
-		password TEXT NOT NULL,
-		role TEXT NOT NULL
-	);
-	`
+// RunMigrations performs automatic database migrations
+func RunMigrations(db *gorm.DB) {
+	log.Println("Running database migrations...")
 
-	_, err := db.Exec(query)
+	// Auto migrate all models
+	err := db.AutoMigrate(&models.User{})
 	if err != nil {
 		log.Fatalf("Migration failed: %v", err)
 	}
-	log.Println("Database migrated successfully.")
+
+	log.Println("Database migrated successfully")
 }

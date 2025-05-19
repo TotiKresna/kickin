@@ -1,14 +1,21 @@
 package handlers
 
 import (
-	"database/sql"
 	"kickin/utils"
 	"net/http"
+
+	"gorm.io/gorm"
 )
 
-func RootHandlerWithDB(db *sql.DB) http.HandlerFunc {
+func RootHandlerWithDB(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := db.Ping(); err != nil {
+		sqlDB, err := db.DB()
+		if err != nil {
+			utils.RespondError(w, http.StatusInternalServerError, "Failed to get database object")
+			return
+		}
+
+		if err = sqlDB.Ping(); err != nil {
 			utils.RespondError(w, http.StatusInternalServerError, "Database connection failed")
 			return
 		}

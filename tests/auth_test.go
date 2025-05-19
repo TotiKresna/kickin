@@ -13,7 +13,11 @@ import (
 func TestRegister(t *testing.T) {
 	cfg := config.LoadConfig()
 	db := config.ConnectDB(cfg)
-	defer db.Close()
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Errorf("Failed to get sql.DB from gorm.DB: %v", err)
+	}
+	defer sqlDB.Close()
 
 	payload := map[string]string{
 		"username": "testuser",
