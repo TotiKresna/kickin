@@ -8,4 +8,3 @@ docker-compose.yml
 app.log
 
 # Ignore folder
-/certs
