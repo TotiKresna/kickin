@@ -40,7 +40,7 @@ func SetupRoutes(db *gorm.DB, cfg *config.Config) http.Handler {
 		r.Use(middleware.AuthMiddleware)
 
 		r.Get("/me", handlers.GetMe)
-
+		r.Put("/user/{id}", handlers.UpdateUser(db))
 	})
 
 	// Admin routes
@@ -49,9 +49,15 @@ func SetupRoutes(db *gorm.DB, cfg *config.Config) http.Handler {
 		r.Use(middleware.AuthMiddleware)
 		r.Use(middleware.RoleMiddleware("superadmin"))
 
+		r.Route("/user", func(r chi.Router) {
+			r.Get("/", handlers.GetAllUsers(db))
+			r.Get("/{id}", handlers.GetUserByID(db))
+			r.Delete("/{id}", handlers.DeleteUser(db))
+		})
+
 		r.Route("/logs", func(r chi.Router) {
 			r.Get("/", handlers.ViewLogs)
-			r.Delete("/", handlers.ClearLogs) // hapus isi log
+			r.Delete("/", handlers.ClearLogs)
 		})
 	})
 

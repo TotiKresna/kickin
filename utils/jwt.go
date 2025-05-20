@@ -17,6 +17,8 @@ var (
 
 func GenerateTokens(user models.User) (accessToken string, refreshToken string, err error) {
 	claims := jwt.MapClaims{
+		"user_id":  user.ID,
+		"email":  	user.Email,
 		"username": user.Username,
 		"role":     user.Role,
 		"exp":      time.Now().Add(15 * time.Minute).Unix(),
@@ -47,7 +49,7 @@ func VerifyRefreshToken(tokenStr string) (jwt.MapClaims, error) {
 	return token.Claims.(jwt.MapClaims), nil
 }
 
-func GenerateTokensFromClaims(username, role string) (string, string, error) {
-	user := models.User{Username: username, Role: role}
+func GenerateTokensFromClaims(user_id uint, email string, username string, role string) (string, string, error) {
+	user := models.User{ID: user_id, Email: email, Username: username, Role: role}
 	return GenerateTokens(user)
 }
