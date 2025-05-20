@@ -16,13 +16,12 @@ func SetupRoutes(db *gorm.DB, cfg *config.Config) http.Handler {
 
 	// === CORS Middleware ===
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{cfg.AllowedOrigins},	
+		AllowedOrigins:   []string{cfg.AllowedOrigins},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link", "X-CSRF-Token"},
 		AllowCredentials: true,
 	}))
-	
 
 	// Public routes
 	r.Get("/", handlers.RootHandlerWithDB(db))
@@ -33,13 +32,14 @@ func SetupRoutes(db *gorm.DB, cfg *config.Config) http.Handler {
 		r.Post("/logout", handlers.Logout)
 		r.Post("/refresh", handlers.RefreshToken(db))
 	})
-	
+
 	// Protected routes
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.RefreshMiddleware)
 		r.Use(middleware.AuthMiddleware)
 
 		r.Get("/me", handlers.GetMe)
+		
 
 	})
 
@@ -53,9 +53,16 @@ func SetupRoutes(db *gorm.DB, cfg *config.Config) http.Handler {
 			r.Get("/", handlers.ViewLogs)
 			r.Delete("/", handlers.ClearLogs) // hapus isi log
 		})
+
+		r.Route("/courts", func(r chi.Router) { // Create, Update, Delete Court only superadmin
+			r.Get("/", handlers.GetCourt(db))
+			r.Post("/create", handlers.CreateCourt(db))
+			r.Put("/update/{id}", handlers.UpdateCourt(db))
+			r.Delete("/delete/{id}", handlers.DeleteCourt(db))
+		})
 	})
 
-
+	r.Handle("/image/*", http.StripPrefix("/image/", http.FileServer(http.Dir("./assets/image"))))
 
 	return r
 }

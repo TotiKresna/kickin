@@ -1,20 +1,15 @@
 package models
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
 type User struct {
-	ID        uint           `json:"id" gorm:"primaryKey"`
+	gorm.Model	// otomatis dapat ID, CreatedAt, UpdateAt, DeletedAt
 	Username  string         `json:"username" gorm:"uniqueIndex;not null"`
 	Email     string         `json:"email" gorm:"uniqueIndex;not null"`
 	Password  string         `json:"password" gorm:"not null"`
 	Role      string         `json:"role" gorm:"not null"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"delete_at" gorm:"index"`
 }
 
 type RegisterRequest struct {

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"kickin/middleware"
 	"kickin/utils"
 	"net/http"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func GetMe(w http.ResponseWriter, r *http.Request) {
-	claims, ok := r.Context().Value("user").(jwt.MapClaims)
+	claims, ok := r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
 	if !ok {
 		utils.RespondError(w, http.StatusUnauthorized, "Not authenticated")
 		return

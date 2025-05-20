@@ -12,7 +12,7 @@ func RunMigrations(db *gorm.DB) {
 	log.Println("Running database migrations...")
 
 	// Auto migrate all models
-	err := db.AutoMigrate(&models.User{})
+	err := db.AutoMigrate(&models.User{}, &models.Court{})
 	if err != nil {
 		log.Fatalf("Migration failed: %v", err)
 	}
