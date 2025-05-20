@@ -19,6 +19,6 @@ func RootHandlerWithDB(db *gorm.DB) http.HandlerFunc {
 			utils.RespondError(w, http.StatusInternalServerError, "Database connection failed")
 			return
 		}
-		utils.RespondSuccess(w, "Connected to PostgreSQL", nil)
+		utils.RespondSuccess(w, "Alhamdulillah", nil)
 	}
 }

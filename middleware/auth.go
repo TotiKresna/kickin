@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"kickin/logger"
+	"kickin/utils"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -57,11 +58,21 @@ func RoleMiddleware(role string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			claims, ok := r.Context().Value(UserContextKey).(jwt.MapClaims)
-			if !ok || claims["role"] != role {
-				http.Error(w, "Forbidden", http.StatusForbidden)
+			if !ok {
+				utils.RespondError(w, http.StatusUnauthorized, "Unauthorized")
+				logger.LogWarning("Missing JWT claims in RoleMiddleware")
 				return
 			}
+
+			userRole, ok := claims["role"].(string)
+			if !ok || userRole != role {
+				utils.RespondError(w, http.StatusForbidden, "Forbidden: insufficient permissions")
+				logger.LogWarning("Access denied: role required = " + role + ", got = " + userRole)
+				return
+			}
+
 			next.ServeHTTP(w, r)
 		})
 	}
 }
+

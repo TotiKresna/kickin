@@ -3,6 +3,7 @@ package handlers
 import (
 	"kickin/middleware"
 	"kickin/utils"
+
 	"net/http"
 
 	"github.com/golang-jwt/jwt/v5"
