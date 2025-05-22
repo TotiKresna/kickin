@@ -32,12 +32,12 @@ func RefreshMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		user_id := uint(claims["user_id"].(float64))
+		id := uint(claims["id"].(float64))
 		email := claims["email"].(string)
 		username := claims["username"].(string)
 		role := claims["role"].(string)
 
-		accessToken, refreshToken, _ := utils.GenerateTokensFromClaims(user_id, email, username, role)
+		accessToken, refreshToken, _ := utils.GenerateTokensFromClaims(id, email, username, role)
 
 		// set new refresh token & csrf token
 		http.SetCookie(w, &http.Cookie{

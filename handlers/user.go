@@ -41,7 +41,7 @@ func GetAllUsers(db *gorm.DB) http.HandlerFunc {
 		var result []map[string]interface{}
 		for _, user := range users {
 			result = append(result, map[string]interface{}{
-				"user_id":   user.ID,
+				"id":   user.ID,
 				"username":  user.Username,
 				"email":     user.Email,
 				"role":      user.Role,
@@ -78,7 +78,7 @@ func GetUserByID(db *gorm.DB) http.HandlerFunc {
 		}
 
 		utils.RespondSuccess(w, "User found", map[string]interface{}{
-			"user_id":   user.ID,
+			"id":   user.ID,
 			"username":  user.Username,
 			"email":     user.Email,
 			"role":      user.Role,
@@ -99,7 +99,7 @@ func UpdateUser(db *gorm.DB) http.HandlerFunc {
 		}
 
 		userIDParam := chi.URLParam(r, "id")
-		requesterID := uint(claims["user_id"].(float64))
+		requesterID := uint(claims["id"].(float64))
 		requesterRole := claims["role"].(string)
 
 		targetUserID, err := strconv.ParseUint(userIDParam, 10, 32)

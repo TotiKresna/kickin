@@ -2,9 +2,10 @@ package main
 
 import (
 	"kickin/config"
+	"kickin/logger"
 	"kickin/migrations"
 	"kickin/routes"
-	"kickin/logger"
+	"kickin/utils"
 	"log"
 	"net/http"
 
@@ -32,6 +33,9 @@ func main() {
 	// Setup router + logger middleware
 	router := routes.SetupRoutes(db, cfg)
 	handler := logger.RequestLogger(router)
+
+	// Jalankan cronjob untuk update expired bookings	
+	utils.StartBookingCronjob(db)
 
 	log.Printf("Server running on port %s", cfg.AppPort)
 	log.Fatal(http.ListenAndServe(":"+cfg.AppPort, handler))

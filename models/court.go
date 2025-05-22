@@ -8,6 +8,6 @@ type Court struct {
 	Location   string    `json:"location"`
 	Price      int       `json:"price"`
 	Image      string    `json:"image"`
-	Status     string    `json:"status"`
+	Status     string    `json:"status"` //available, unavailable
 	Bookings   []Booking `json:"bookings" gorm:"foreignKey:CourtID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }

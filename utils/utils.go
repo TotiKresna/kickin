@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -71,4 +72,9 @@ func ClearCookie(w http.ResponseWriter, name string) {
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   -1,
 	})
+}
+
+func NowPlusMinutes(m int) *time.Time {
+	t := time.Now().Add(time.Duration(m) * time.Minute)
+	return &t
 }

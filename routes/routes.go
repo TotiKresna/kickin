@@ -40,6 +40,14 @@ func SetupRoutes(db *gorm.DB, cfg *config.Config) http.Handler {
 
 		r.Get("/me", handlers.GetMe)
 		r.Put("/user/{id}", handlers.UpdateUser(db))
+		r.Get("/allcourts", handlers.GetCourt(db))
+
+		r.Route("/mybookings", func(r chi.Router) {
+
+			r.Post("/", handlers.CreateBooking(db))
+			r.Get("/", handlers.GetMyBookings(db))
+			r.Get("/{id}", handlers.GetMyBookingByID(db))
+		})
 	})
 
 	// Admin routes
@@ -60,10 +68,17 @@ func SetupRoutes(db *gorm.DB, cfg *config.Config) http.Handler {
 		})
 
 		r.Route("/courts", func(r chi.Router) { // Create, Update, Delete Court only superadmin
-			r.Get("/", handlers.GetCourt(db))
+			
 			r.Post("/create", handlers.CreateCourt(db))
 			r.Put("/update/{id}", handlers.UpdateCourt(db))
 			r.Delete("/delete/{id}", handlers.DeleteCourt(db))
+		})
+
+		r.Route("/bookings", func(r chi.Router) {
+			r.Get("/", handlers.GetAllBookings(db))
+			r.Get("/{id}", handlers.GetBookingByID(db))
+			r.Put("/{id}", handlers.UpdateBooking(db))
+			r.Delete("/{id}", handlers.DeleteBooking(db))
 		})
 	})
 

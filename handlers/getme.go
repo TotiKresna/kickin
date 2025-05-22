@@ -18,7 +18,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 
 	// Return user information from JWT claims
 	userInfo := map[string]interface{}{
-		"id":       claims["user_id"],
+		"id":       claims["id"],
 		"username": claims["username"],
 		"email":    claims["email"],
 		"role":     claims["role"],
